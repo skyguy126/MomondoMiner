@@ -63,8 +63,14 @@ class MomondoMiner:
         if r.status_code != 200:
             sys.exit(0)
 
-        self.search_id = json.loads(r.text)["SearchId"]
+        try:
+            self.search_id = json.loads(r.text)["SearchId"]
+        except:
+            return False
+
         self.log(" sid: {}\n".format(self.search_id))
+
+        return True
 
     def mine(self):
         while True:
