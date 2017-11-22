@@ -54,21 +54,23 @@ class MomondoMiner:
         r = self.session.get(self.base_url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36'})
         self.log(str(r.status_code) + " " + r.reason)
         if r.status_code != 200:
-            sys.exit(0)
+            return False
+        else:
+            return True
 
     def get_search_id(self):
         self.log("\nSending flight search request to {}... ".format(self.flight_search_url))
         r = self.session.post(self.flight_search_url, json=self.flight_search_params, headers={'Content-Type' : 'application/json; charset=utf-8'})
         self.log(str(r.status_code) + " " + r.reason)
         if r.status_code != 200:
-            sys.exit(0)
+            return False
 
         try:
             self.search_id = json.loads(r.text)["SearchId"]
         except:
             return False
 
-        self.log(" sid: {}\n".format(self.search_id))
+        self.log(" SearchID: {}\n".format(self.search_id))
 
         return True
 
@@ -78,7 +80,7 @@ class MomondoMiner:
             r = self.session.get(self.flight_search_url + self.search_id + '/0/true')
             self.log(str(r.status_code) + " " + r.reason)
             if r.status_code != 200:
-                sys.exit(0)
+                return False
 
             flight_search_response = json.loads(r.text)
 
@@ -112,6 +114,8 @@ class MomondoMiner:
             time.sleep(5)
 
         self.summary = json.loads(r.text)["Summary"]
+
+        return True
 
     def process_offer(self, offer_index):
         offer = self.offers[offer_index]

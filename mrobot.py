@@ -1,12 +1,19 @@
-import json
+import json, sys
 from openpyxl import Workbook
 from MomondoMiner import MomondoMiner
 
 if __name__ == "__main__":
     m = MomondoMiner("SFO", "LAX", "2017-12-24", "2017-12-27")
-    m.initiate_session()
-    m.get_search_id()
-    m.mine()
+    
+    if not m.initiate_session():
+        sys.exit(0)
+    if not m.get_search_id():
+        sys.exit(0)
+
+    success = m.mine()
+    if not success:
+        sys.exit(0)
+
     data = m.get_best_offer()
 
     print json.dumps(data, indent=4, sort_keys=True)
