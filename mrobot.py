@@ -1,14 +1,14 @@
-import json, sys
-from openpyxl import Workbook
+import json, sys, os
+from openpyxl import Workbook, load_workbook
 from MomondoMiner import MomondoMiner
 
-if __name__ == "__main__":
-    m = MomondoMiner("SFO", "LAX", "2017-12-24", "2017-12-27")
-    
+def mine_and_save_to_file(output_file, m):
     if not m.initiate_session():
-        sys.exit(0)
+        print "Error initizling session"
+        sys.exit(1)
     if not m.get_search_id():
-        sys.exit(0)
+        print "Error while searching"
+        sys.exit(1)
 
     success = m.mine()
     if not success:
@@ -19,8 +19,14 @@ if __name__ == "__main__":
     print json.dumps(data, indent=4, sort_keys=True)
     print "\nGenerating workbook file..."
 
-    wb = Workbook()
+
+    if os.path.isfile(output_file) and os.path.exists(output_file):
+        print "Istnienie"
+        wb = load_workbook(filename = output_file)
+    else:
+        wb = Workbook()
     ws = wb.active
+
     ws.title = "MomondoMiner"
 
     ws['A1'] = "Airline"
@@ -36,19 +42,24 @@ if __name__ == "__main__":
     ws['K1'] = "Return Stops"
     ws['L1'] = "URL"
 
-    ws['A2'] = data["journey_segments"][0]["segment_legs"][0]["airline_name"]
-    ws['B2'] = data["origin"]
-    ws['C2'] = data["destination"]
-    ws['D2'] = data["departure"]
-    ws['E2'] = data["arrival"]
-    ws['F2'] = data["total_price"]
-    ws['G2'] = data["currency_type"]
-    ws['H2'] = data["journey_segments"][0]["segment_duration"]
-    ws['I2'] = data["journey_segments"][1]["segment_duration"]
-    ws['J2'] = data["journey_segments"][0]["segment_stops"]
-    ws['K2'] = data["journey_segments"][1]["segment_stops"]
-    ws['L2'] = data["offer_url"]
+    ws.append({'A': data["journey_segments"][0]["segment_legs"][0]["airline_name"],
+        'B': data["origin"],
+        'C' : data["destination"],
+        'D' : data["departure"],
+        'E' : data["arrival"],
+        'F' : data["total_price"],
+        'G' : data["currency_type"],
+        'H' : data["journey_segments"][0]["segment_duration"],
+        'I' : data["journey_segments"][1]["segment_duration"],
+        'J' : data["journey_segments"][0]["segment_stops"],
+        'K' : data["journey_segments"][1]["segment_stops"],
+        'L' : data["offer_url"]})
 
-    wb.save("MomondoMiner.xlsx")
+    wb.save(output_file)
 
     print "Done!"
+
+if __name__ == "__main__":
+    output_file = "MomondoMiner.xlsx"
+    mine_and_save_to_file(output_file, MomondoMiner("SFO", "LAX", "2017-12-24", "2017-12-27"))
+    
