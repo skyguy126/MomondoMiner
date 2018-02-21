@@ -21,7 +21,6 @@ def mine_and_save_to_file(output_file, m):
 
 
     if os.path.isfile(output_file) and os.path.exists(output_file):
-        print "Istnienie"
         wb = load_workbook(filename = output_file)
     else:
         wb = Workbook()
@@ -62,4 +61,3 @@ def mine_and_save_to_file(output_file, m):
 if __name__ == "__main__":
     output_file = "MomondoMiner.xlsx"
     mine_and_save_to_file(output_file, MomondoMiner("SFO", "LAX", "2017-12-24", "2017-12-27"))
-    
